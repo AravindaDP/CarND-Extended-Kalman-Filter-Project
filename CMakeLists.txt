@@ -60,6 +60,6 @@ endif()
 enable_testing()
 
 # Now simply link against gtest or gtest_main as needed. Eg
-add_executable(ExtendedKFTests src/tools.cpp)
+add_executable(ExtendedKFTests src/tools.cpp test/tools_test.cpp)
 target_link_libraries(ExtendedKFTests gtest_main)
 add_test(NAME ekf_tests COMMAND ExtendedKFTests)
