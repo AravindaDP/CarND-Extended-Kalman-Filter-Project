@@ -30,11 +30,13 @@ int main()
 {
   uWS::Hub h;
 
-  // Create a Kalman Filter instance
-  FusionEKF fusionEKF;
-
   // used to compute the RMSE later
   Tools tools;
+
+  KalmanFilter ekf;
+  // Create a Kalman Filter instance
+  FusionEKF fusionEKF(ekf, tools);
+
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
@@ -136,7 +138,6 @@ int main()
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
           // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-	  
         }
       } else {
         

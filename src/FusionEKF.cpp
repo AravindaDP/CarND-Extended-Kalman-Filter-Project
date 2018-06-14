@@ -11,7 +11,7 @@ using std::vector;
 /*
  * Constructor.
  */
-FusionEKF::FusionEKF() {
+FusionEKF::FusionEKF(KalmanFilter& ekf, Tools& tools) : ekf_(ekf), tools_(tools) {
   is_initialized_ = false;
 
   previous_timestamp_ = 0;
