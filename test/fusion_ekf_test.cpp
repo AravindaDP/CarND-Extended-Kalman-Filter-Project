@@ -211,3 +211,145 @@ TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateEKF_ForSubsequent
   ASSERT_TRUE(ekf_.R_.isApprox(expected_R, 0.0001));
   ASSERT_TRUE(ekf_.H_.isApprox(expected_H, 0.0001));
 }
+
+TEST_F(FusionEKFTest, Algorithm_PassProjectRubric_ForDataSet1) {
+  string in_file_name_ = "../data/obj_pose-laser-radar-synthetic-input.txt";
+  ifstream in_file_(in_file_name_.c_str(), ifstream::in);
+
+  ASSERT_TRUE(in_file_.is_open());
+
+  string line;
+
+  Tools tools;
+  KalmanFilter ekf;
+
+  // Create a Fusion EKF instance
+  FusionEKF fusionEKF(ekf, tools);
+
+  // used to compute the RMSE later
+  vector<VectorXd> estimations;
+  vector<VectorXd> ground_truth;
+
+  // prep the measurement packages (each line represents a measurement at a
+  // timestamp)
+  while (getline(in_file_, line)) {
+    string sensor_type;
+    MeasurementPackage meas_package;
+    VectorXd gt_values(4);
+    istringstream iss(line);
+    long long timestamp;
+
+    // reads first element from the current line
+    iss >> sensor_type;
+    if (sensor_type.compare("L") == 0) {
+      // LASER MEASUREMENT
+
+      // read measurements at this timestamp
+      meas_package.sensor_type_ = MeasurementPackage::LASER;
+      meas_package.raw_measurements_ = VectorXd(2);
+      float x;
+      float y;
+      iss >> x;
+      iss >> y;
+      meas_package.raw_measurements_ << x, y;
+      iss >> timestamp;
+      meas_package.timestamp_ = timestamp;
+    }
+    else if (sensor_type.compare("R") == 0) {
+      // RADAR MEASUREMENT
+
+      // read measurements at this timestamp
+      meas_package.sensor_type_ = MeasurementPackage::RADAR;
+      meas_package.raw_measurements_ = VectorXd(3);
+      float ro;
+      float phi;
+      float ro_dot;
+      iss >> ro;
+      iss >> phi;
+      iss >> ro_dot;
+      meas_package.raw_measurements_ << ro, phi, ro_dot;
+      iss >> timestamp;
+      meas_package.timestamp_ = timestamp;
+    }
+
+    // read ground truth data to compare later
+    float x_gt;
+    float y_gt;
+    float vx_gt;
+    float vy_gt;
+    iss >> x_gt;
+    iss >> y_gt;
+    iss >> vx_gt;
+    iss >> vy_gt;
+
+    gt_values << x_gt, y_gt, vx_gt, vy_gt;
+    ground_truth.push_back(gt_values);
+
+    fusionEKF.ProcessMeasurement(meas_package);
+    estimations.push_back(fusionEKF.ekf_.x_);
+  }
+
+  // compute the accuracy (RMSE)
+  VectorXd expected_rmse(4);
+  expected_rmse << 0.11, 0.11, 0.52, 0.52;
+  VectorXd rmse = tools.CalculateRMSE(estimations, ground_truth);
+  ASSERT_THAT(tools.CalculateRMSE(estimations, ground_truth), IsLt(expected_rmse));
+
+  // close files
+  if (in_file_.is_open()) {
+    in_file_.close();
+  }
+}
+
+class ProcessMeasurementTest : public FusionEKFTest,
+                               public ::testing::WithParamInterface<std::tuple<vector<MeasurementPackage>, VectorXd, 
+                                                                               MatrixXd>> {
+ public:
+  virtual void SetUp() {
+    auto test_data = GetParam();
+    measurements_ = std::get<0>(test_data);
+    expected_x_ = std::get<1>(test_data);
+    expected_P_ = std::get<2>(test_data);
+
+    std::cout.setstate(std::ios_base::failbit);
+  }
+
+ protected:
+  vector<MeasurementPackage> measurements_;
+  // expected state
+  VectorXd expected_x_;
+  MatrixXd expected_P_;
+
+  void TearDown() override {
+    std::cout.clear();
+  }
+};
+
+TEST_P(ProcessMeasurementTest, ReturnCorrectEstimation_ForTestMeasurements) {
+  Tools tools;
+  KalmanFilter ekf;
+
+  FusionEKF fusionEKF(ekf, tools);
+
+  for (unsigned int i = 0; i < measurements_.size(); ++i) {
+    fusionEKF.ProcessMeasurement(measurements_[i]);
+  }
+
+  ASSERT_TRUE(ekf.x_.isApprox(expected_x_, 0.1));
+  ASSERT_TRUE(ekf.P_.isApprox(expected_P_, 0.1));
+}
+
+INSTANTIATE_TEST_CASE_P(FusionEKFTest, ProcessMeasurementTest, ::testing::Values(
+    std::make_tuple(vector<MeasurementPackage>({{1477010443000000, MeasurementPackage::LASER,
+                                                 Map<VectorXd>(vector<double>({0.463227, 0.607415}).data(), 2)},
+                                                {1477010443100000, MeasurementPackage::LASER,
+                                                 Map<VectorXd>(vector<double>({0.968521, 0.40545}).data(), 2)},
+                                                {1477010443200000, MeasurementPackage::LASER,
+                                                 Map<VectorXd>(vector<double>({0.947752, 0.636824}).data(), 2)},
+                                                {1477010443300000, MeasurementPackage::LASER,
+                                                 Map<VectorXd>(vector<double>({ 1.42287, 0.264328 }).data(), 2)}}),
+                    Map<VectorXd>(std::vector<double>({1.34291, 0.364408, 2.32002, -0.722813}).data(), 4),
+                    Map<Matrix<double, 4, 4, RowMajor>>(std::vector<double>({0.0185328, 0, 0.109639, 0,
+                                                                             0, 0.0185328, 0, 0.109639,
+                                                                             0.109639, 0, 1.10798, 0,
+                                                                             0, 0.109639, 0, 1.10798 }).data()))));
