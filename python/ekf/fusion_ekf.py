@@ -34,9 +34,36 @@ class FusionEKF:
         # Set the process and measurement noises
         """
 
+        #initialize variables and matrices (x, F, H_laser, H_jacobian, P, etc.)
+        #create a 4D state vector, we don't know yet the values of the x state
+        x_in = Matrix([[]])
+        x_in.zero(4,1)
+
+	    #state covariance matrix P
+        P_in = Matrix([[1, 0, 0, 0],
+			           [0, 1, 0, 0],
+			           [0, 0, 1000, 0],
+			           [0, 0, 0, 1000]])
+
+
+	    #measurement matrix
+        self._H_laser = Matrix([[1, 0, 0, 0],
+			                    [0, 1, 0, 0]]) # From Lesson 5 Section 10.
+
+	    #the initial transition matrix F_
+        F_in = Matrix([[1, 0, 1, 0],
+			           [0, 1, 0, 1],
+			           [0, 0, 1, 0],
+			           [0, 0, 0, 1]])
+
+        Q_in = Matrix([[]])
+        Q_in.zero(4, 4)
+
+        self._ekf.init(x_in, P_in, F_in, self._H_laser, self._R_laser, Q_in)
+
     def process_measurement(self, measurement_pack):
         """Run the whole flow of the Kalman Filter from here."""
-
+        
         """
         # Initialization
         """
@@ -56,10 +83,17 @@ class FusionEKF:
                 """
                 Convert radar from polar to cartesian coordinates and initialize state.
                 """
+                ro = measurement_pack._raw_measurements.value[0][0]
+                theta = measurement_pack._raw_measurements.value[1][0]
+                self._ekf._x = Matrix([[ro*cos(theta)], [ro*sin(theta)], [0], [0]])
             elif measurement_pack._sensor_type == MeasurementPackage.SensorType.LASER:
                 """
                 Initialize state.
                 """
+                #set the state with the initial location and zero velocity
+                self._ekf._x = Matrix([measurement_pack._raw_measurements.value[0], measurement_pack._raw_measurements.value[1], [0], [0]])
+
+            self._previous_timestamp = measurement_pack._timestamp
 
             # done initializing, no need to predict or update
             self._is_initialized  = True
@@ -76,6 +110,31 @@ class FusionEKF:
         # Update the process noise covariance matrix.
         # Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
         """
+        #modify the F and Q matrices prior to the prediction step based on the elapsed time between measurements
+        #compute the time elapsed between the current and previous measurements
+  
+        dt = (measurement_pack._timestamp - self._previous_timestamp) / 1000000.0	#dt - expressed in seconds
+        self._previous_timestamp = measurement_pack._timestamp
+
+        dt_2 = dt * dt
+        dt_3 = dt_2 * dt
+        dt_4 = dt_3 * dt
+
+	    #Modify the F matrix so that the time is integrated
+        #Lesson 5 Section 8
+        self._ekf._F.value[0][2] = dt
+        self._ekf._F.value[1][3] = dt
+
+        #acceleration noise components
+        noise_ax = 9
+        noise_ay = 9
+
+	    #set the process covariance matrix Q
+        #Lesson 5 Section 9
+        self._ekf._Q = Matrix([[dt_4/4*noise_ax, 0, dt_3/2*noise_ax, 0],
+                               [0, dt_4/4*noise_ay, 0, dt_3/2*noise_ay],
+                               [dt_3/2*noise_ax, 0, dt_2*noise_ax, 0],
+                               [0, dt_3/2*noise_ay, 0, dt_2*noise_ay]])
 
         self._ekf.predict()
 
@@ -91,10 +150,25 @@ class FusionEKF:
 
         if measurement_pack._sensor_type == MeasurementPackage.SensorType.RADAR:
             # Radar updates
-            pass
+
+            #set ekf_.H_ by setting to Hj which is the calculated the jacobian
+            #set ekf_.R_ by just using R_radar_
+
+            self._Hj = self._tools.calculate_jacobian(self._ekf._x)
+            self._ekf._H = self._Hj
+            self._ekf._R = self._R_radar
+
+            self._ekf.update_ekf(measurement_pack._raw_measurements)
         else:
             # Laser updates
-            pass
+
+            #set ekf_.H_ by just using H_laser_
+            #set ekf_.R_ by just using R_laser_
+
+            self._ekf._H = self._H_laser
+            self._ekf._R = self._R_laser
+
+            self._ekf.update(measurement_pack._raw_measurements)
 
         # print the output
         print("x_ = ", self._ekf._x)
