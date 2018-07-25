@@ -20,7 +20,7 @@ class TestFusionEKF(unittest.TestCase):
         sys.stdout = sys.__stdout__
     
     # 1. initialize variables and matrices (x, F, H_laser, H_jacobian, P, etc.)
-    def test_constructor_sets_ekf_variables(self):
+    def test_constructor_calls_init_on_ekf(self):
         self._ekf.init = MagicMock()
 
         fusionEKF = FusionEKF(self._ekf, self._tools)
@@ -44,7 +44,7 @@ class TestFusionEKF(unittest.TestCase):
                                                   [0, 0, 0, 0]]))
 
     # 2. initialize the Kalman filter position vector with the first sensor measurements
-    def test_process_measurement_initialize_filter_position_if_first_measurement_is_LASER(self):
+    def test_process_measurement_sets_x_of_ekf_if_first_measurement_is_LASER(self):
         meas_package = MeasurementPackage(timestamp= 0, sensor_type = MeasurementPackage.SensorType.LASER,
                                           raw_measurements = Matrix([[1], [1]]))
 
@@ -55,7 +55,7 @@ class TestFusionEKF(unittest.TestCase):
 
         self.assertEqual(self._ekf._x.value, initial_x.value)
 
-    def test_process_measurement_initialize_filter_position_if_first_measurement_is_RADAR(self):
+    def test_process_measurement_sets_x_of_ekf_if_first_measurement_is_RADAR(self):
         ro = 1
         theta = 2
 
@@ -70,7 +70,7 @@ class TestFusionEKF(unittest.TestCase):
         self.assertEqual(self._ekf._x.value, initial_x.value)
 
     # 3. modify the F and Q matrices prior to the prediction step based on the elapsed time between measurements
-    def test_process_measurement_set_F_and_Q_for_subsequent_measurements(self):
+    def test_process_measurement_sets_F_and_Q_of_ekf_for_subsequent_measurements(self):
         fusionEKF = FusionEKF(self._ekf, self._tools)
 
         meas_package = MeasurementPackage(timestamp= 1477010443000000, sensor_type = MeasurementPackage.SensorType.LASER,
@@ -103,7 +103,7 @@ class TestFusionEKF(unittest.TestCase):
 
     # 4. call the update step for either the lidar or radar sensor measurement. Because the update step
     #    for lidar and radar are slightly different, there are different functions for updating lidar and radar.
-    def test_process_measurement_calls_predict_then_update_for_subsequent_LASER_measurements(self):
+    def test_process_measurement_calls_predict_then_update_on_ekf_for_subsequent_LASER_measurements(self):
         self._ekf.predict = MagicMock()
         self._ekf.update = MagicMock()
 
@@ -131,7 +131,7 @@ class TestFusionEKF(unittest.TestCase):
 
         assert ekf_sequence.mock_calls == [call.predict(), call.update(Matrix([[0.968521], [0.40545]]))]
 
-    def test_process_measurement_call_predict_then_update_for_subsequent_RADAR_measurements(self):
+    def test_process_measurement_calls_predict_then_update_ekf_on_ekf_for_subsequent_RADAR_measurements(self):
         self._ekf.predict = MagicMock()
         self._ekf.update_ekf = MagicMock()
         self._tools.calculate_jacobian = MagicMock(return_value=Matrix([[0.8, 0.6, 0, 0],
@@ -167,7 +167,7 @@ class TestFusionEKF(unittest.TestCase):
                                            call.calculate_jacobian(Matrix([[0.7326109317880749], [0.5204492516937732], [0], [0]])),
                                            call.update_ekf(Matrix([[0.910574], [0.610537], [1.46233]]))]
             
-    def test_algorithm_pass_project_rubric_for_data_set1(self):
+    def test_fusion_ekf_passes_project_rubric_for_dataset1(self):
         in_file_name_ = "../data/obj_pose-laser-radar-synthetic-input.txt"
         
         in_file = open(in_file_name_, newline='')
@@ -245,7 +245,7 @@ class TestFusionEKF(unittest.TestCase):
         
         in_file.close()
 
-    def test_process_measurement_return_correct_estimation_for_test_measurements(self):
+    def test_process_measurement_x_and_P_of_ekf_calculated_for_test_measurements(self):
         for measurements, expected_x, expected_P in [([MeasurementPackage(timestamp= 1477010443000000, sensor_type = MeasurementPackage.SensorType.LASER,
                                                                           raw_measurements =  Matrix([[0.463227], [0.607415]])),
                                                        MeasurementPackage(timestamp= 1477010443100000, sensor_type = MeasurementPackage.SensorType.LASER,

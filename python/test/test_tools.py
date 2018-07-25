@@ -7,7 +7,7 @@ class TestTools(unittest.TestCase):
     def setUp(self):
         self._tools = Tools()
 
-    def test_calculate_rmse_return0_if_estimation_size0(self):
+    def test_calculate_rmse_returns0_if_estimations_size_is0(self):
         estimations = []
         ground_truth = []
         expected_rmse = Matrix([[]])
@@ -17,7 +17,7 @@ class TestTools(unittest.TestCase):
 
         self.assertEqual(rmse.value, expected_rmse.value, "RMSE should be 0 when estimation size is 0.")
 
-    def test_calculate_rmse_return0_if_estimation_size_differ(self):
+    def test_calculate_rmse_returns0_if_estimations_size_differ(self):
         estimations = [Matrix([[1], [1], [0.2], [0.1]])]
         ground_truth = [Matrix([[1.1], [1.1], [0.3], [0.2]]),
                         Matrix([[2.1], [2.1], [0.4], [0.3]])]
@@ -28,7 +28,7 @@ class TestTools(unittest.TestCase):
 
         self.assertEqual(rmse.value, expected_rmse.value, "RMSE should be 0 when estimation size differs.")
 
-    def test_calculate_jacobian_return0_if_pxpy_is0(self):
+    def test_calculate_jacobian_returns0_if_px_and_py_is0(self):
         state = Matrix([[]])
         state.zero(4, 1)
         expected_Hj = Matrix([[]])
@@ -38,7 +38,7 @@ class TestTools(unittest.TestCase):
 
         self.assertEqual(Hj.value, expected_Hj.value, "Jacobian should be 0 when px and py is 0.")
 
-    def test_calculate_rmse_return_correct_rmse_for_test_estimations(self):
+    def test_calculate_rmse_returns_correct_rmse_for_test_estimations(self):
         for estimations, ground_truth, expected_rmse in [([Matrix([[1], [1], [0.2], [0.1]]),
                                                            Matrix([[2], [2], [0.3], [0.2]]),
                                                            Matrix([[3], [3], [0.4], [0.3]])],
@@ -51,7 +51,7 @@ class TestTools(unittest.TestCase):
 
                 assert_array_almost_equal(rmse.value, expected_rmse.value, err_msg="RMSE should be correctly calculated.")
 
-    def test_calculate_jacobian_return_correct_Hj_for_test_state(self):
+    def test_calculate_jacobian_returns_correct_Hj_for_test_state(self):
         for state, expected_Hj in [(Matrix([[1], [2], [0.2], [0.4]]),
                                     Matrix([[0.447214, 0.894427, 0, 0],
                                             [-0.4, 0.2, 0, 0],
