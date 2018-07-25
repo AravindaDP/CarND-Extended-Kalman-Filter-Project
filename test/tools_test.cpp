@@ -12,7 +12,7 @@ class ToolsTest : public ::testing::Test {
   Tools tools_;
 };
 
-TEST_F(ToolsTest, CalculateRMSE_Return0_IfEstimationSize0) {
+TEST_F(ToolsTest, CalculateRMSE_Returns0_IfEstimationsSizeIs0) {
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
   VectorXd expected_rmse = Map<VectorXd>(std::vector<double>({0, 0, 0, 0}).data(), 4);
@@ -22,7 +22,7 @@ TEST_F(ToolsTest, CalculateRMSE_Return0_IfEstimationSize0) {
   ASSERT_TRUE(rmse.isApprox(expected_rmse));
 }
 
-TEST_F(ToolsTest, CalculateRMSE_Return0_IfEstimationSizeDiffer) {
+TEST_F(ToolsTest, CalculateRMSE_Returns0_IfEstimationsSizeDiffer) {
   vector<VectorXd> estimations = {Map<VectorXd>(vector<double>({1, 1, 0.2, 0.1}).data(), 4)};
   vector<VectorXd> ground_truth = {Map<VectorXd>(vector<double>({1.1, 1.1, 0.3, 0.2}).data(), 4),
                                    Map<VectorXd>(vector<double>({2.1, 2.1, 0.4, 0.3}).data(), 4)};
@@ -33,7 +33,7 @@ TEST_F(ToolsTest, CalculateRMSE_Return0_IfEstimationSizeDiffer) {
   ASSERT_TRUE(rmse.isApprox(expected_rmse));
 }
 
-TEST_F(ToolsTest, CalculateJacobian_Return0_IfPxAndPyIs0) {
+TEST_F(ToolsTest, CalculateJacobian_Returns0_IfPxAndPyIs0) {
   VectorXd state = Map<VectorXd>(std::vector<double>({0, 0, 0, 0}).data(), 4);
   MatrixXd expected_Hj = MatrixXd::Zero(3,4);
 
@@ -59,7 +59,7 @@ class CalculateRMSETest: public ToolsTest,
   VectorXd expected_rmse_;
 };
 
-TEST_P(CalculateRMSETest, ReturnCorrectRMSE_ForTestEstimations) {
+TEST_P(CalculateRMSETest, ReturnsCorrectRMSE_ForTestEstimations) {
   VectorXd rmse = tools_.CalculateRMSE(estimations_, ground_truth_);
 
   ASSERT_TRUE(rmse.isApprox(expected_rmse_));
@@ -88,7 +88,7 @@ class CalculateJacobianTest: public ToolsTest,
   MatrixXd expected_Hj_;
 };
 
-TEST_P(CalculateJacobianTest, ReturnCorrectHj_ForTestState) {
+TEST_P(CalculateJacobianTest, ReturnsCorrectHj_ForTestState) {
   MatrixXd Hj = tools_.CalculateJacobian(state_);
 
   ASSERT_TRUE(Hj.isApprox(expected_Hj_, 0.0001));

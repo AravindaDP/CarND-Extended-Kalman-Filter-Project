@@ -50,7 +50,7 @@ class FusionEKFTest : public ::testing::Test {
 };
 
 // 1. initialize variables and matrices (x, F, H_laser, H_jacobian, P, etc.)
-TEST_F(FusionEKFTest, Constructor_SetsKalmanFilterVariables) {
+TEST_F(FusionEKFTest, Constructor_CallsInitOnEKF) {
   EXPECT_CALL(ekf_, Init(Eq(VectorXd::Zero(4)),
                          Eq((MatrixXd)Map<Matrix<double,4,4,RowMajor>>(vector<double>({1, 0, 0, 0,
                                                                                        0, 1, 0, 0,
@@ -70,7 +70,7 @@ TEST_F(FusionEKFTest, Constructor_SetsKalmanFilterVariables) {
 }
 
 // 2. initialize the Kalman filter position vector with the first sensor measurements
-TEST_F(FusionEKFTest, ProcessMeasurement_InitializeFilterPosition_IfFirstMeasurementIsLASER) {
+TEST_F(FusionEKFTest, ProcessMeasurement_SetsXOfEKF_IfFirstMeasurementIsLASER) {
 	MeasurementPackage meas_package = {0, MeasurementPackage::LASER,
                                        Map<VectorXd>(std::vector<double>({ 1, 1 }).data(), 2) };
 
@@ -83,7 +83,7 @@ TEST_F(FusionEKFTest, ProcessMeasurement_InitializeFilterPosition_IfFirstMeasure
   ASSERT_TRUE(ekf_.x_.isApprox(initial_x_));
 }
 
-TEST_F(FusionEKFTest, ProcessMeasurement_InitializeFilterPosition_IfFirstMeasurementIsRADAR) {
+TEST_F(FusionEKFTest, ProcessMeasurement_SetsXOfEKF_IfFirstMeasurementIsRADAR) {
   float ro = 1;
   float theta = 2;
 
@@ -100,7 +100,7 @@ TEST_F(FusionEKFTest, ProcessMeasurement_InitializeFilterPosition_IfFirstMeasure
 }
 
 // 3. modify the F and Q matrices prior to the prediction step based on the elapsed time between measurements
-TEST_F(FusionEKFTest, ProcessMeasurement_SetsFAndQ_ForSubsequentMeasurements) {
+TEST_F(FusionEKFTest, ProcessMeasurement_SetsFAndQOfEKF_ForSubsequentMeasurements) {
   MeasurementPackage meas_package;
 
   FusionEKF fusionEKF(ekf_, tools_);
@@ -137,7 +137,7 @@ TEST_F(FusionEKFTest, ProcessMeasurement_SetsFAndQ_ForSubsequentMeasurements) {
 
 // 4. call the update step for either the lidar or radar sensor measurement. Because the update step
 //    for lidar and radar are slightly different, there are different functions for updating lidar and radar.
-TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdate_ForSubsequentLASERMeasurements) {
+TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateOnEKF_ForSubsequentLASERMeasurements) {
   {
     InSequence ekf;
 
@@ -171,7 +171,7 @@ TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdate_ForSubsequentLAS
   ASSERT_TRUE(ekf_.H_.isApprox(expected_H, 0.0001));
 }
 
-TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateEKF_ForSubsequentRADARMeasurements) {
+TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateEKFOnEKF_ForSubsequentRADARMeasurements) {
   {
     InSequence ekf;
 
@@ -212,7 +212,7 @@ TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateEKF_ForSubsequent
   ASSERT_TRUE(ekf_.H_.isApprox(expected_H, 0.0001));
 }
 
-TEST_F(FusionEKFTest, Algorithm_PassProjectRubric_ForDataSet1) {
+TEST_F(FusionEKFTest, FusionEKF_PassesProjectRubric_ForDataSet1) {
   string in_file_name_ = "../data/obj_pose-laser-radar-synthetic-input.txt";
   ifstream in_file_(in_file_name_.c_str(), ifstream::in);
 
@@ -325,7 +325,7 @@ class ProcessMeasurementTest : public FusionEKFTest,
   }
 };
 
-TEST_P(ProcessMeasurementTest, ReturnCorrectEstimation_ForTestMeasurements) {
+TEST_P(ProcessMeasurementTest, XAndPOfEKFCalculated_ForTestMeasurements) {
   Tools tools;
   KalmanFilter ekf;
 
