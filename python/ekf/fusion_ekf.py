@@ -5,11 +5,13 @@ from math import sin, cos
 class FusionEKF:
     def __init__(self, ekf, tools):
         """Constructor"""
+        #: obj`KalmanFilter`: Kalman Filter update and prediction math lives in here.
         self._ekf = ekf
+        #: obj`Tools`: tool object used to compute Jacobian and RMSE
         self._tools = tools
-
+        #: bool: check whether the tracking toolbox was initialized or not (first measurement)
         self._is_initialized = False
-
+        #: long: previous timestamp
         self._previous_timestamp = 0
 
         #initializing matrices
@@ -29,9 +31,9 @@ class FusionEKF:
                                 [0, 0, 0.09]])
 
         """
-        # TODO:
-        # Finish initializing the FusionEKF.
-        # Set the process and measurement noises
+        Todo:
+            * Finish initializing the FusionEKF.
+            * Set the process and measurement noises
         """
 
         #initialize variables and matrices (x, F, H_laser, H_jacobian, P, etc.)
@@ -65,14 +67,15 @@ class FusionEKF:
         """Run the whole flow of the Kalman Filter from here."""
         
         """
-        # Initialization
+        Initialization
         """
         if not self._is_initialized:
             """
-            # TODO:
-            # Initialize the state ekf_.x_ with the first measurement.
-            # Create the covariance matrix.
-            # Remember: you'll need to convert radar from polar to cartesian coordinates.
+            Todo:
+                * Initialize the state ekf_.x_ with the first measurement.
+                * Create the covariance matrix.
+            
+            You'll need to convert radar from polar to cartesian coordinates.
             """
             # first measurement
             print("EKF: ")
@@ -100,15 +103,19 @@ class FusionEKF:
             return
 
         """
-        # Prediction
+        Prediction
         """
 
         """
-        # TODO:
-        # Update the state transition matrix F according to the new elapsed time.
-        # - Time is measured in seconds.
-        # Update the process noise covariance matrix.
-        # Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
+        Todo:
+            * Update the state transition matrix F according to the new elapsed time.
+        
+        Time is measured in seconds.
+
+        Todo:
+            * Update the process noise covariance matrix.
+        
+        Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
         """
         #modify the F and Q matrices prior to the prediction step based on the elapsed time between measurements
         #compute the time elapsed between the current and previous measurements
@@ -139,13 +146,13 @@ class FusionEKF:
         self._ekf.predict()
 
         """
-        #  Update
+        Update
         """
 
         """
-        # TODO:
-        # Use the sensor type to perform the update step.
-        # Update the state and covariance matrices.
+        Todo:
+            * Use the sensor type to perform the update step.
+            * Update the state and covariance matrices.
         """
 
         if measurement_pack._sensor_type == MeasurementPackage.SensorType.RADAR:

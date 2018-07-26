@@ -7,33 +7,34 @@ from math import sqrt, atan2, pi
 class KalmanFilter :
     def __init__(self):
         """Constructor"""
-        # state vector
+        #: obj`Matrix`: state vector
         self._x = Matrix([[]])
         
-        # state covariance matrix
+        #: obj`Matrix`: state covariance matrix
         self._P = Matrix([[]])
 
-        # state transition matrix
+        #: obj`Matrix`: state transition matrix
         self._F = Matrix([[]])
         
-        # process covariance matrix
+        #: obj`Matrix`: process covariance matrix
         self._Q = Matrix([[]])
 
-        # measurement matrix
+        #: obj`Matrix`: measurement matrix
         self._H = Matrix([[]])
 
-        # measurement covariance matrix
+        #: obj`Matrix`: measurement covariance matrix
         self._R = Matrix([[]])
 
     def init(self, x_in, P_in, F_in, H_in, R_in, Q_in):
         """Initializes Kalman filter
 
-            x_in: Initial state
-            P_in: Initial state covariance
-            F_in: Transition matrix
-            H_in: Measurement matrix
-            R_in: Measurement covariance matrix
-            Q_in: Process covariance matrix
+        Args:
+            x_in (:obj:`Matrix`): Initial state
+            P_in (:obj:`Matrix`): Initial state covariance
+            F_in (:obj:`Matrix`): Transition matrix
+            H_in (:obj:`Matrix`): Measurement matrix
+            R_in (:obj:`Matrix`): Measurement covariance matrix
+            Q_in (:obj:`Matrix`): Process covariance matrix
         """
         self._x = x_in
         self._P = P_in
@@ -45,11 +46,12 @@ class KalmanFilter :
     def predict(self):
         """Predicts the state and the state covariance using the process model
 
-            delta_T: Time between k and k+1 in s
+        Args:
+            delta_T (long): Time between k and k+1 in s
         """
         """
-        # TODO:
-        # predict the state
+        Todo:
+            * predict the state
         """
         self._x = self._F * self._x # Lesson 5 Section 8
         Ft = self._F.transpose()
@@ -57,12 +59,13 @@ class KalmanFilter :
 
     def update(self, z):
         """Updates the state by using standard Kalman Filter equations
-            
-            z: The measurement at k+1
+
+        Args:    
+            z (:obj:`Matrix`): The measurement at k+1
         """
         """
-        # TODO:
-        # update the state by using Kalman Filter equations
+        Todo:
+            * update the state by using Kalman Filter equations
         """
         z_pred = self._H * self._x
         y = z - z_pred
@@ -82,11 +85,12 @@ class KalmanFilter :
     def update_ekf(self, z):
         """Updates the state by using Extended Kalman Filter equations
    
-            z: The measurement at k+1
+        Args:
+            z (:obj:`Matrix`): The measurement at k+1
         """
         """
-        # TODO:
-        # update the state by using Extended Kalman Filter equations
+        Todo:
+            * update the state by using Extended Kalman Filter equations
         """
         #Lesson 5 Section 14
         px = self._x.value[0][0]

@@ -4,8 +4,8 @@ from math import sqrt
 class Tools:
     def calculate_rmse(self, estimations, ground_truth):
         """
-        # TODO:
-        # Calculate the RMSE here.
+        Todo:
+            * Calculate the RMSE here.
         """
         rmse = Matrix([[]])
         rmse.zero(4, 1)
@@ -36,8 +36,8 @@ class Tools:
 
     def calculate_jacobian(self, x_state):
         """
-        # TODO:
-        # Calculate a Jacobian here.
+        Todo:
+            * Calculate a Jacobian here.
         """
         Hj = Matrix([[]])
         Hj.zero(3, 4)
