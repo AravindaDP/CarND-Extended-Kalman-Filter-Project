@@ -14,7 +14,7 @@ class FusionEKF {
   /**
    * Constructor.
    */
-  FusionEKF();
+  FusionEKF(KalmanFilter& ekf, Tools& tools);
 
   /**
    * Destructor.
@@ -29,7 +29,7 @@ class FusionEKF {
   /**
    * Kalman Filter update and prediction math lives in here.
    */
-  KalmanFilter ekf_;
+  KalmanFilter& ekf_;
 
  private:
   // check whether the tracking toolbox was initialized or not (first measurement)
@@ -39,7 +39,7 @@ class FusionEKF {
   long long previous_timestamp_;
 
   // tool object used to compute Jacobian and RMSE
-  Tools tools;
+  Tools& tools_;
   Eigen::MatrixXd R_laser_;
   Eigen::MatrixXd R_radar_;
   Eigen::MatrixXd H_laser_;

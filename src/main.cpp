@@ -32,11 +32,13 @@ string hasData(string s) {
 int main() {
   uWS::Hub h;
 
-  // Create a Kalman Filter instance
-  FusionEKF fusionEKF;
-
   // used to compute the RMSE later
   Tools tools;
+
+  KalmanFilter ekf;
+  // Create a Kalman Filter instance
+  FusionEKF fusionEKF(ekf, tools);
+
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
