@@ -4,8 +4,10 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-// Please note that the Eigen library does not initialize 
-// VectorXd or MatrixXd objects with zeros upon creation.
+/* 
+ * Please note that the Eigen library does not initialize 
+ *   VectorXd or MatrixXd objects with zeros upon creation.
+ */
 
 KalmanFilter::KalmanFilter() {}
 
@@ -23,9 +25,8 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 
 void KalmanFilter::Predict() {
   /**
-  TODO:
-    * predict the state
-  */
+   * TODO: predict the state
+   */
   x_ = F_ * x_; //Lesson 5 Section 8
   MatrixXd Ft = F_.transpose();
   P_ = F_ * P_ * Ft + Q_; // Lesson 5 Section 9
@@ -33,9 +34,8 @@ void KalmanFilter::Predict() {
 
 void KalmanFilter::Update(const VectorXd &z) {
   /**
-  TODO:
-    * update the state by using Kalman Filter equations
-  */
+   * TODO: update the state by using Kalman Filter equations
+   */
   VectorXd z_pred = H_ * x_;
   VectorXd y = z - z_pred;
   MatrixXd Ht = H_.transpose();
@@ -53,9 +53,8 @@ void KalmanFilter::Update(const VectorXd &z) {
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
-  TODO:
-    * update the state by using Extended Kalman Filter equations
-  */
+   * TODO: update the state by using Extended Kalman Filter equations
+   */
   //Lesson 5 Section 14
   float px = x_[0];
   float py = x_[1];
