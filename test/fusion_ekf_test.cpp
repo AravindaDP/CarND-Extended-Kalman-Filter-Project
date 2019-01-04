@@ -215,7 +215,11 @@ TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateEKFOnEKF_ForSubse
 }
 
 TEST_F(FusionEKFTest, FusionEKF_PassesProjectRubric_ForDataSet1) {
+#ifdef _USE_VS
+  std::string in_file_name_ = "../../../../data/obj_pose-laser-radar-synthetic-input.txt";
+#else
   std::string in_file_name_ = "../data/obj_pose-laser-radar-synthetic-input.txt";
+#endif // CMake
   std::ifstream in_file_(in_file_name_.c_str(), ifstream::in);
 
   ASSERT_TRUE(in_file_.is_open());
