@@ -19,6 +19,8 @@ using ::testing::DoubleNear;
 using ::testing::Return;
 using Eigen::Map;
 using Eigen::Matrix;
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 using Eigen::RowMajor;
 using std::sin;
 using std::cos;
@@ -71,8 +73,8 @@ TEST_F(FusionEKFTest, Constructor_CallsInitOnEKF) {
 
 // 2. initialize the Kalman filter position vector with the first sensor measurements
 TEST_F(FusionEKFTest, ProcessMeasurement_SetsXOfEKF_IfFirstMeasurementIsLASER) {
-	MeasurementPackage meas_package = {0, MeasurementPackage::LASER,
-                                       Map<VectorXd>(std::vector<double>({ 1, 1 }).data(), 2) };
+  MeasurementPackage meas_package = {MeasurementPackage::LASER, 0,
+                                     Map<VectorXd>(std::vector<double>({ 1, 1 }).data(), 2) };
 
   FusionEKF fusionEKF(ekf_, tools_);
   fusionEKF.ProcessMeasurement(meas_package);
@@ -87,7 +89,7 @@ TEST_F(FusionEKFTest, ProcessMeasurement_SetsXOfEKF_IfFirstMeasurementIsRADAR) {
   float ro = 1;
   float theta = 2;
 
-  MeasurementPackage meas_package = {0, MeasurementPackage::RADAR,
+  MeasurementPackage meas_package = {MeasurementPackage::RADAR, 0,
                                      Map<VectorXd>(vector<double>({ro, theta, 0.5}).data(), 3)};
 
   FusionEKF fusionEKF(ekf_, tools_);
@@ -96,7 +98,7 @@ TEST_F(FusionEKFTest, ProcessMeasurement_SetsXOfEKF_IfFirstMeasurementIsRADAR) {
   VectorXd initial_x_ = VectorXd(4);
   initial_x_ << ro*cos(theta), ro*sin(theta), 0, 0;
 
-  ASSERT_TRUE(ekf_.x_.isApprox(initial_x_));
+  ASSERT_TRUE(ekf_.x_.isApprox(initial_x_, 0.000001));
 }
 
 // 3. modify the F and Q matrices prior to the prediction step based on the elapsed time between measurements
@@ -105,11 +107,11 @@ TEST_F(FusionEKFTest, ProcessMeasurement_SetsFAndQOfEKF_ForSubsequentMeasurement
 
   FusionEKF fusionEKF(ekf_, tools_);
 
-  meas_package = {1477010443000000, MeasurementPackage::LASER,
+  meas_package = {MeasurementPackage::LASER, 1477010443000000,
                   Map<VectorXd>(vector<double>({0.463227, 0.607415}).data(), 2)};
   fusionEKF.ProcessMeasurement(meas_package);
 
-  meas_package = {1477010443100000, MeasurementPackage::LASER,
+  meas_package = {MeasurementPackage::LASER, 1477010443100000,
                   Map<VectorXd>(vector<double>({0.968521, 0.40545}).data(), 2)};
   fusionEKF.ProcessMeasurement(meas_package);
 
@@ -149,11 +151,11 @@ TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateOnEKF_ForSubseque
 
   FusionEKF fusionEKF(ekf_, tools_);
 
-  meas_package = {1477010443000000, MeasurementPackage::LASER,
+  meas_package = {MeasurementPackage::LASER, 1477010443000000,
                   Map<VectorXd>(vector<double>({0.463227, 0.607415}).data(), 2)};
   fusionEKF.ProcessMeasurement(meas_package);
 
-  meas_package = {1477010443100000, MeasurementPackage::LASER,
+  meas_package = {MeasurementPackage::LASER, 1477010443100000,
                   Map<VectorXd>(vector<double>({0.968521, 0.40545}).data(), 2)};
   fusionEKF.ProcessMeasurement(meas_package);
 
@@ -188,11 +190,11 @@ TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateEKFOnEKF_ForSubse
 
   FusionEKF fusionEKF(ekf_, tools_);
 
-  meas_package = {1477010443050000, MeasurementPackage::RADAR,
+  meas_package = {MeasurementPackage::RADAR, 1477010443050000,
                   Map<VectorXd>(vector<double>({0.898658, 0.617674, 1.7986}).data(), 3)};
   fusionEKF.ProcessMeasurement(meas_package);
 
-  meas_package = {1477010443150000, MeasurementPackage::RADAR,
+  meas_package = {MeasurementPackage::RADAR, 1477010443150000,
                   Map<VectorXd>(vector<double>({0.910574, 0.610537, 1.46233}).data(), 3)};
   fusionEKF.ProcessMeasurement(meas_package);
 
@@ -213,12 +215,12 @@ TEST_F(FusionEKFTest, ProcessMeasurement_CallsPredictThenUpdateEKFOnEKF_ForSubse
 }
 
 TEST_F(FusionEKFTest, FusionEKF_PassesProjectRubric_ForDataSet1) {
-  string in_file_name_ = "../data/obj_pose-laser-radar-synthetic-input.txt";
-  ifstream in_file_(in_file_name_.c_str(), ifstream::in);
+  std::string in_file_name_ = "../data/obj_pose-laser-radar-synthetic-input.txt";
+  std::ifstream in_file_(in_file_name_.c_str(), ifstream::in);
 
   ASSERT_TRUE(in_file_.is_open());
 
-  string line;
+  std::string line;
 
   Tools tools;
   KalmanFilter ekf;
@@ -233,10 +235,10 @@ TEST_F(FusionEKFTest, FusionEKF_PassesProjectRubric_ForDataSet1) {
   // prep the measurement packages (each line represents a measurement at a
   // timestamp)
   while (getline(in_file_, line)) {
-    string sensor_type;
+    std::string sensor_type;
     MeasurementPackage meas_package;
     VectorXd gt_values(4);
-    istringstream iss(line);
+    std::istringstream iss(line);
     long long timestamp;
 
     // reads first element from the current line
@@ -340,13 +342,13 @@ TEST_P(ProcessMeasurementTest, XAndPOfEKFCalculated_ForTestMeasurements) {
 }
 
 INSTANTIATE_TEST_CASE_P(FusionEKFTest, ProcessMeasurementTest, ::testing::Values(
-    std::make_tuple(vector<MeasurementPackage>({{1477010443000000, MeasurementPackage::LASER,
+    std::make_tuple(vector<MeasurementPackage>({{MeasurementPackage::LASER, 1477010443000000,
                                                  Map<VectorXd>(vector<double>({0.463227, 0.607415}).data(), 2)},
-                                                {1477010443100000, MeasurementPackage::LASER,
+                                                {MeasurementPackage::LASER, 1477010443100000,
                                                  Map<VectorXd>(vector<double>({0.968521, 0.40545}).data(), 2)},
-                                                {1477010443200000, MeasurementPackage::LASER,
+                                                {MeasurementPackage::LASER, 1477010443200000,
                                                  Map<VectorXd>(vector<double>({0.947752, 0.636824}).data(), 2)},
-                                                {1477010443300000, MeasurementPackage::LASER,
+                                                {MeasurementPackage::LASER, 1477010443300000,
                                                  Map<VectorXd>(vector<double>({ 1.42287, 0.264328 }).data(), 2)}}),
                     Map<VectorXd>(std::vector<double>({1.34291, 0.364408, 2.32002, -0.722813}).data(), 4),
                     Map<Matrix<double, 4, 4, RowMajor>>(std::vector<double>({0.0185328, 0, 0.109639, 0,

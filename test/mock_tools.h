@@ -3,10 +3,10 @@
 
 class MockTools : public Tools {
  public:
-  MOCK_METHOD1(CalculateJacobian, MatrixXd(const VectorXd& x_state));
+  MOCK_METHOD1(CalculateJacobian, Eigen::MatrixXd(const Eigen::VectorXd& x_state));
 
   // Use this to call CalculateJacobian() defined in Tools.
-  MatrixXd ToolsCalculateJacobian(const VectorXd& x_state) { 
+  Eigen::MatrixXd ToolsCalculateJacobian(const Eigen::VectorXd& x_state) {
     return Tools::CalculateJacobian(x_state);
   }
 };

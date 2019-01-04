@@ -5,7 +5,9 @@
 
 using Eigen::Map;
 using Eigen::Matrix;
+using Eigen::MatrixXd;
 using Eigen::RowMajor;
+using Eigen::VectorXd;
 
 class ToolsTest : public ::testing::Test {
  protected:
@@ -13,8 +15,8 @@ class ToolsTest : public ::testing::Test {
 };
 
 TEST_F(ToolsTest, CalculateRMSE_Returns0_IfEstimationsSizeIs0) {
-  vector<VectorXd> estimations;
-  vector<VectorXd> ground_truth;
+  std::vector<VectorXd> estimations;
+  std::vector<VectorXd> ground_truth;
   VectorXd expected_rmse = Map<VectorXd>(std::vector<double>({0, 0, 0, 0}).data(), 4);
 
   VectorXd rmse = tools_.CalculateRMSE(estimations, ground_truth);
@@ -23,9 +25,9 @@ TEST_F(ToolsTest, CalculateRMSE_Returns0_IfEstimationsSizeIs0) {
 }
 
 TEST_F(ToolsTest, CalculateRMSE_Returns0_IfEstimationsSizeDiffer) {
-  vector<VectorXd> estimations = {Map<VectorXd>(vector<double>({1, 1, 0.2, 0.1}).data(), 4)};
-  vector<VectorXd> ground_truth = {Map<VectorXd>(vector<double>({1.1, 1.1, 0.3, 0.2}).data(), 4),
-                                   Map<VectorXd>(vector<double>({2.1, 2.1, 0.4, 0.3}).data(), 4)};
+  std::vector<VectorXd> estimations = {Map<VectorXd>(std::vector<double>({1, 1, 0.2, 0.1}).data(), 4)};
+  std::vector<VectorXd> ground_truth = {Map<VectorXd>(std::vector<double>({1.1, 1.1, 0.3, 0.2}).data(), 4),
+                                        Map<VectorXd>(std::vector<double>({2.1, 2.1, 0.4, 0.3}).data(), 4)};
   VectorXd expected_rmse = Map<VectorXd>(std::vector<double>({0, 0, 0, 0}).data(), 4);
 
   VectorXd rmse = tools_.CalculateRMSE(estimations, ground_truth);
@@ -43,7 +45,7 @@ TEST_F(ToolsTest, CalculateJacobian_Returns0_IfPxAndPyIs0) {
 }
 
 class CalculateRMSETest: public ToolsTest,
-                         public ::testing::WithParamInterface<std::tuple<vector<VectorXd>, vector<VectorXd>,
+                         public ::testing::WithParamInterface<std::tuple<std::vector<VectorXd>, std::vector<VectorXd>,
 						                                                             VectorXd>> {
  public:
   virtual void SetUp() {
@@ -54,8 +56,8 @@ class CalculateRMSETest: public ToolsTest,
   }
 
  protected:
-  vector<VectorXd> estimations_;
-  vector<VectorXd> ground_truth_;
+  std::vector<VectorXd> estimations_;
+  std::vector<VectorXd> ground_truth_;
   VectorXd expected_rmse_;
 };
 
@@ -66,12 +68,12 @@ TEST_P(CalculateRMSETest, ReturnsCorrectRMSE_ForTestEstimations) {
 }
 
 INSTANTIATE_TEST_CASE_P(ToolsTest, CalculateRMSETest, ::testing::Values(
-    std::make_tuple(vector<VectorXd>({Map<VectorXd>(vector<double>({1, 1, 0.2, 0.1}).data(), 4),
-                                      Map<VectorXd>(vector<double>({2, 2, 0.3, 0.2}).data(), 4),
-                                      Map<VectorXd>(vector<double>({3, 3, 0.4, 0.3}).data(), 4)}),
-                    vector<VectorXd>({Map<VectorXd>(vector<double>({1.1, 1.1, 0.3, 0.2}).data(), 4),
-                                      Map<VectorXd>(vector<double>({2.1, 2.1, 0.4, 0.3}).data(), 4),
-                                      Map<VectorXd>(vector<double>({3.1, 3.1, 0.5, 0.4}).data(), 4)}),
+    std::make_tuple(std::vector<VectorXd>({Map<VectorXd>(std::vector<double>({1, 1, 0.2, 0.1}).data(), 4),
+                                           Map<VectorXd>(std::vector<double>({2, 2, 0.3, 0.2}).data(), 4),
+                                           Map<VectorXd>(std::vector<double>({3, 3, 0.4, 0.3}).data(), 4)}),
+                    std::vector<VectorXd>({Map<VectorXd>(std::vector<double>({1.1, 1.1, 0.3, 0.2}).data(), 4),
+                                           Map<VectorXd>(std::vector<double>({2.1, 2.1, 0.4, 0.3}).data(), 4),
+                                           Map<VectorXd>(std::vector<double>({3.1, 3.1, 0.5, 0.4}).data(), 4)}),
                     Map<VectorXd>(std::vector<double>({0.1, 0.1, 0.1, 0.1}).data(), 4))));
 
 class CalculateJacobianTest: public ToolsTest,
