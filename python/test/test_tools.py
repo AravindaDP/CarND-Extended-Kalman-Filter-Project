@@ -15,7 +15,8 @@ class TestTools(unittest.TestCase):
 
         rmse = self._tools.calculate_rmse(estimations, ground_truth)
 
-        self.assertEqual(rmse.value, expected_rmse.value, "RMSE should be 0 when estimation size is 0.")
+        self.assertEqual(rmse.value, expected_rmse.value, 
+                         "RMSE should be 0 when estimation size is 0.")
 
     def test_calculate_rmse_returns0_if_estimations_size_differ(self):
         estimations = [Matrix([[1], [1], [0.2], [0.1]])]
@@ -26,7 +27,8 @@ class TestTools(unittest.TestCase):
 
         rmse = self._tools.calculate_rmse(estimations, ground_truth)
 
-        self.assertEqual(rmse.value, expected_rmse.value, "RMSE should be 0 when estimation size differs.")
+        self.assertEqual(rmse.value, expected_rmse.value, 
+                         "RMSE should be 0 when estimation size differs.")
 
     def test_calculate_jacobian_returns0_if_px_and_py_is0(self):
         state = Matrix([[]])
@@ -36,7 +38,8 @@ class TestTools(unittest.TestCase):
 
         Hj = self._tools.calculate_jacobian(state)
 
-        self.assertEqual(Hj.value, expected_Hj.value, "Jacobian should be 0 when px and py is 0.")
+        self.assertEqual(Hj.value, expected_Hj.value, 
+                         "Jacobian should be 0 when px and py is 0.")
 
     def test_calculate_rmse_returns_correct_rmse_for_test_estimations(self):
         for estimations, ground_truth, expected_rmse in [([Matrix([[1], [1], [0.2], [0.1]]),
@@ -49,7 +52,8 @@ class TestTools(unittest.TestCase):
             with self.subTest():
                 rmse = self._tools.calculate_rmse(estimations, ground_truth)
 
-                assert_array_almost_equal(rmse.value, expected_rmse.value, err_msg="RMSE should be correctly calculated.")
+                assert_array_almost_equal(rmse.value, expected_rmse.value, 
+                                          err_msg="RMSE should be correctly calculated.")
 
     def test_calculate_jacobian_returns_correct_Hj_for_test_state(self):
         for state, expected_Hj in [(Matrix([[1], [2], [0.2], [0.4]]),
@@ -59,4 +63,5 @@ class TestTools(unittest.TestCase):
             with self.subTest():
                 Hj = self._tools.calculate_jacobian(state)
 
-                assert_array_almost_equal(Hj.value, expected_Hj.value, err_msg="RMSE should be correctly calculated.")
+                assert_array_almost_equal(Hj.value, expected_Hj.value, 
+                                          err_msg="RMSE should be correctly calculated.")

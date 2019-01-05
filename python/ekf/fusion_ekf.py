@@ -117,10 +117,11 @@ class FusionEKF:
         
         Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
         """
-        #modify the F and Q matrices prior to the prediction step based on the elapsed time between measurements
-        #compute the time elapsed between the current and previous measurements
+        # modify the F and Q matrices prior to the prediction step based on the 
+        # elapsed time between measurements
+        # compute the time elapsed between the current and previous measurements
   
-        dt = (measurement_pack._timestamp - self._previous_timestamp) / 1000000.0	#dt - expressed in seconds
+        dt = (measurement_pack._timestamp - self._previous_timestamp)/1000000.0	#dt - expressed in seconds
         self._previous_timestamp = measurement_pack._timestamp
 
         dt_2 = dt * dt

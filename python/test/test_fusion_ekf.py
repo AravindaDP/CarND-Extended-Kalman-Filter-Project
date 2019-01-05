@@ -45,8 +45,9 @@ class TestFusionEKF(unittest.TestCase):
 
     # 2. initialize the Kalman filter position vector with the first sensor measurements
     def test_process_measurement_sets_x_of_ekf_if_first_measurement_is_LASER(self):
-        meas_package = MeasurementPackage(timestamp= 0, sensor_type = MeasurementPackage.SensorType.LASER,
-                                          raw_measurements = Matrix([[1], [1]]))
+        meas_package = MeasurementPackage(0, 
+                                          MeasurementPackage.SensorType.LASER,
+                                          Matrix([[1], [1]]))
 
         fusionEKF = FusionEKF(self._ekf, self._tools)
         fusionEKF.process_measurement(meas_package)
@@ -59,8 +60,9 @@ class TestFusionEKF(unittest.TestCase):
         ro = 1
         theta = 2
 
-        meas_package = MeasurementPackage(timestamp= 0, sensor_type = MeasurementPackage.SensorType.RADAR,
-                                          raw_measurements = Matrix([[ro], [theta], [0.5]]))
+        meas_package = MeasurementPackage(0, 
+                                          MeasurementPackage.SensorType.RADAR,
+                                          Matrix([[ro], [theta], [0.5]]))
 
         fusionEKF = FusionEKF(self._ekf, self._tools)
         fusionEKF.process_measurement(meas_package)
@@ -69,16 +71,19 @@ class TestFusionEKF(unittest.TestCase):
 
         self.assertEqual(self._ekf._x.value, initial_x.value)
 
-    # 3. modify the F and Q matrices prior to the prediction step based on the elapsed time between measurements
+    # 3. modify the F and Q matrices prior to the prediction step based on the 
+    # elapsed time between measurements
     def test_process_measurement_sets_F_and_Q_of_ekf_for_subsequent_measurements(self):
         fusionEKF = FusionEKF(self._ekf, self._tools)
 
-        meas_package = MeasurementPackage(timestamp= 1477010443000000, sensor_type = MeasurementPackage.SensorType.LASER,
-                                          raw_measurements =  Matrix([[0.463227], [0.607415]]))
+        meas_package = MeasurementPackage(1477010443000000, 
+                                          MeasurementPackage.SensorType.LASER,
+                                          Matrix([[0.463227], [0.607415]]))
         fusionEKF.process_measurement(meas_package)
 
-        meas_package = MeasurementPackage(timestamp= 1477010443100000, sensor_type = MeasurementPackage.SensorType.LASER,
-                                          raw_measurements =  Matrix([[0.968521], [0.40545]]))
+        meas_package = MeasurementPackage(1477010443100000, 
+                                          MeasurementPackage.SensorType.LASER,
+                                          Matrix([[0.968521], [0.40545]]))
         fusionEKF.process_measurement(meas_package)
 
         self.assertAlmostEqual(self._ekf._F.value[0][2], 0.1)
@@ -101,8 +106,9 @@ class TestFusionEKF(unittest.TestCase):
 
         assert_array_almost_equal(self._ekf._Q.value, expected_Q.value)
 
-    # 4. call the update step for either the lidar or radar sensor measurement. Because the update step
-    #    for lidar and radar are slightly different, there are different functions for updating lidar and radar.
+    # 4. call the update step for either the lidar or radar sensor measurement. 
+    #    Because the update step for lidar and radar are slightly different, 
+    #    there are different functions for updating lidar and radar.
     def test_process_measurement_calls_predict_then_update_on_ekf_for_subsequent_LASER_measurements(self):
         self._ekf.predict = MagicMock()
         self._ekf.update = MagicMock()
@@ -113,12 +119,14 @@ class TestFusionEKF(unittest.TestCase):
 
         fusionEKF = FusionEKF(self._ekf, self._tools)
 
-        meas_package = MeasurementPackage(timestamp= 1477010443000000, sensor_type = MeasurementPackage.SensorType.LASER,
-                                          raw_measurements =  Matrix([[0.463227], [0.607415]]))
+        meas_package = MeasurementPackage(1477010443000000, 
+                                          MeasurementPackage.SensorType.LASER,
+                                          Matrix([[0.463227], [0.607415]]))
         fusionEKF.process_measurement(meas_package)
 
-        meas_package = MeasurementPackage(timestamp= 1477010443100000, sensor_type = MeasurementPackage.SensorType.LASER,
-                                          raw_measurements =  Matrix([[0.968521], [0.40545]]))
+        meas_package = MeasurementPackage(1477010443100000, 
+                                          MeasurementPackage.SensorType.LASER,
+                                          Matrix([[0.968521], [0.40545]]))
         fusionEKF.process_measurement(meas_package)
 
         expected_R = Matrix([[0.0225, 0],
@@ -145,12 +153,14 @@ class TestFusionEKF(unittest.TestCase):
 
         fusionEKF = FusionEKF(self._ekf, self._tools)
 
-        meas_package = MeasurementPackage(timestamp= 1477010443050000, sensor_type = MeasurementPackage.SensorType.RADAR,
-                                          raw_measurements =  Matrix([[0.898658], [0.617674], [1.7986]]))
+        meas_package = MeasurementPackage(1477010443050000, 
+                                          MeasurementPackage.SensorType.RADAR,
+                                          Matrix([[0.898658], [0.617674], [1.7986]]))
         fusionEKF.process_measurement(meas_package)
 
-        meas_package = MeasurementPackage(timestamp= 1477010443150000, sensor_type = MeasurementPackage.SensorType.RADAR,
-                                          raw_measurements =  Matrix([[0.910574], [0.610537], [1.46233]]))
+        meas_package = MeasurementPackage(1477010443150000, 
+                                          MeasurementPackage.SensorType.RADAR,
+                                          Matrix([[0.910574], [0.610537], [1.46233]]))
         fusionEKF.process_measurement(meas_package)
 
         expected_R = Matrix([[0.09, 0, 0],
@@ -246,14 +256,18 @@ class TestFusionEKF(unittest.TestCase):
         in_file.close()
 
     def test_process_measurement_x_and_P_of_ekf_calculated_for_test_measurements(self):
-        for measurements, expected_x, expected_P in [([MeasurementPackage(timestamp= 1477010443000000, sensor_type = MeasurementPackage.SensorType.LASER,
-                                                                          raw_measurements =  Matrix([[0.463227], [0.607415]])),
-                                                       MeasurementPackage(timestamp= 1477010443100000, sensor_type = MeasurementPackage.SensorType.LASER,
-                                                                          raw_measurements =  Matrix([[0.968521], [0.40545]])),
-                                                       MeasurementPackage(timestamp= 1477010443200000, sensor_type = MeasurementPackage.SensorType.LASER,
-                                                                          raw_measurements =  Matrix([[0.947752], [0.636824]])),
-                                                       MeasurementPackage(timestamp= 1477010443300000, sensor_type = MeasurementPackage.SensorType.LASER,
-                                                                          raw_measurements =  Matrix([[1.42287], [0.264328]]))],
+        for measurements, expected_x, expected_P in [([MeasurementPackage(1477010443000000, 
+                                                                          MeasurementPackage.SensorType.LASER,
+                                                                          Matrix([[0.463227], [0.607415]])),
+                                                       MeasurementPackage(1477010443100000, 
+                                                                          MeasurementPackage.SensorType.LASER,
+                                                                          Matrix([[0.968521], [0.40545]])),
+                                                       MeasurementPackage(1477010443200000, 
+                                                                          MeasurementPackage.SensorType.LASER,
+                                                                          Matrix([[0.947752], [0.636824]])),
+                                                       MeasurementPackage(1477010443300000, 
+                                                                          MeasurementPackage.SensorType.LASER,
+                                                                          Matrix([[1.42287], [0.264328]]))],
                                                       Matrix([[1.34291], [0.364408], [2.32002], [-0.722813]]),
                                                       Matrix([[0.0185328, 0, 0.109639, 0],
                                                               [0, 0.0185328, 0, 0.109639],
