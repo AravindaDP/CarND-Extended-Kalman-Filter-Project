@@ -17,7 +17,10 @@ Once the install for uWebSocketIO is complete, the main program can be built and
 
 ### Important:
 ```
-In addition to udacity provided CMake build targets, a GoogleTest and GoogleMocks based unit test configuration is also added. For this CMakeLists.txt is modified to download GoogleTest as part of the build's configure step. So please make sure that you have internet connectivity during cmake step above.
+In addition to udacity provided CMake build targets, a GoogleTest and GoogleMocks 
+based unit test configuration is also added. For this CMakeLists.txt is modified 
+to download GoogleTest as part of the build's configure step. So please make sure 
+that you have internet connectivity during cmake step above.
 ```
 
 Tips for setting up your environment can be found in the classroom lesson for this project.
@@ -114,7 +117,7 @@ for instructions and the project rubric.
 
 ## Python Version of ExtendedKF
 
-* Python version of this project is available under /python directory. Please refer to /python/README.md for more details on using python version of the project.
+* Python version of this project is available under /python directory. Please refer to [/python/README.md](python/README.md) for more details on using python version of the project.
 
 ## Call for IDE Profiles Pull Requests
 
@@ -141,7 +144,7 @@ still be compilable with cmake and make.
 
 ## Using Visual Studio 2017
 
-A Visual Studio 2017 Solution is added to /ide_profiles/vs/ Please read /ide_profiles/vs/README.md for more instructions for setting up.
+A Visual Studio 2017 Solution is added to /ide_profiles/vs/ Please read [/ide_profiles/vs/README.md](ide_profiles/vs/README.md) for more instructions for setting up.
 
 ## How to write a README
 A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
