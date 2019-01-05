@@ -22,3 +22,12 @@ xcuserdata/
 *.xcscmblueprint
 ide_profiles/xcode/Debug/
 ide_profiles/xcode/ExtendedKF.build/
+
+# Visual Studio
+ide_profiles/vs/.vs/
+ide_profiles/vs/x64/
+ide_profiles/vs/Win32/
+ide_profiles/vs/packages/
+
+# Python
+*.pyc
