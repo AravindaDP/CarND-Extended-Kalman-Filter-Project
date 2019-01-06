@@ -163,7 +163,11 @@ int main() {
   });
 
   int port = 4567;
+#ifdef _USE_VS
+  if (h.listen("127.0.0.1", port)) {
+#else
   if (h.listen(port)) {
+#endif
     std::cout << "Listening to port " << port << std::endl;
   } else {
     std::cerr << "Failed to listen to port" << std::endl;
